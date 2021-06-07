@@ -19,5 +19,10 @@ namespace DiscordQR
             this.DiscordUsername = "/";
             this.DiscordEmail = "/";
         }
+
+        public override string ToString()
+        {
+            return "Token: " + DiscordToken + " ~ Username: " + DiscordUsername + " ~ Email: " + DiscordEmail;
+        }
     }
 }

