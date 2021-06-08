@@ -42,6 +42,7 @@ namespace DiscordQR
             this.Email = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CopyQR = new System.Windows.Forms.DataGridViewButtonColumn();
             this.Login = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.discordBindingSource)).BeginInit();
@@ -88,12 +89,13 @@ namespace DiscordQR
             this.Username,
             this.Email,
             this.CopyQR,
-            this.Login});
+            this.Login,
+            this.Status});
             this.dataGridView1.Location = new System.Drawing.Point(230, 13);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.Size = new System.Drawing.Size(558, 428);
+            this.dataGridView1.Size = new System.Drawing.Size(646, 428);
             this.dataGridView1.TabIndex = 3;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
@@ -151,11 +153,17 @@ namespace DiscordQR
             this.Login.UseColumnTextForButtonValue = true;
             this.Login.Width = 85;
             // 
+            // Status
+            // 
+            this.Status.HeaderText = "Status";
+            this.Status.Name = "Status";
+            this.Status.ReadOnly = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(888, 450);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.linkLabel1);
@@ -187,6 +195,7 @@ namespace DiscordQR
         private System.Windows.Forms.DataGridViewTextBoxColumn Email;
         private System.Windows.Forms.DataGridViewButtonColumn CopyQR;
         private System.Windows.Forms.DataGridViewButtonColumn Login;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Status;
     }
 }
 
