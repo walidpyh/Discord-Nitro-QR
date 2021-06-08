@@ -34,8 +34,6 @@ namespace DiscordQR
             this.genBtn = new System.Windows.Forms.Button();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.discordBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.QrCodeID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.discordToken = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Username = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -43,6 +41,8 @@ namespace DiscordQR
             this.CopyQR = new System.Windows.Forms.DataGridViewButtonColumn();
             this.Login = new System.Windows.Forms.DataGridViewButtonColumn();
             this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.discordBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.discordBindingSource)).BeginInit();
@@ -99,18 +99,6 @@ namespace DiscordQR
             this.dataGridView1.TabIndex = 3;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
-            // richTextBox1
-            // 
-            this.richTextBox1.Location = new System.Drawing.Point(12, 305);
-            this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(201, 116);
-            this.richTextBox1.TabIndex = 4;
-            this.richTextBox1.Text = "";
-            // 
-            // discordBindingSource
-            // 
-            this.discordBindingSource.DataSource = typeof(DiscordQR.Discord);
-            // 
             // QrCodeID
             // 
             this.QrCodeID.HeaderText = "ID";
@@ -159,6 +147,18 @@ namespace DiscordQR
             this.Status.Name = "Status";
             this.Status.ReadOnly = true;
             // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Location = new System.Drawing.Point(12, 305);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(201, 116);
+            this.richTextBox1.TabIndex = 4;
+            this.richTextBox1.Text = "";
+            // 
+            // discordBindingSource
+            // 
+            this.discordBindingSource.DataSource = typeof(DiscordQR.Discord);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -169,6 +169,7 @@ namespace DiscordQR
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.genBtn);
             this.Controls.Add(this.pictureBox1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Form1";
             this.ShowIcon = false;
             this.Text = "Discord QR";

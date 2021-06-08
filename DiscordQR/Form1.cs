@@ -31,20 +31,17 @@ namespace DiscordQR
         public void SeleniumHandler()
         {
             int workingIndex = currentIndex;
+
+            var firefoxDriverService = FirefoxDriverService.CreateDefaultService();
+            var firefoxOptions = new FirefoxOptions();
+
+            firefoxDriverService.SuppressInitialDiagnosticInformation = true;
+            firefoxDriverService.HideCommandPromptWindow = true;         
+
+            IWebDriver driver = new FirefoxDriver(firefoxDriverService, firefoxOptions);
+
             try
             {
-                
-                var firefoxDriverService = FirefoxDriverService.CreateDefaultService();
-                var firefoxOptions = new FirefoxOptions();
-
-                firefoxDriverService.SuppressInitialDiagnosticInformation = true;
-                firefoxDriverService.HideCommandPromptWindow = true;
-
-                //firefoxOptions.AddArgument("--headless");            
-
-                IWebDriver driver = new FirefoxDriver(firefoxDriverService, firefoxOptions);
-                //driver.Manage().Window.Minimize();
-
                 drivers.Add(driver);
         
                 log("Launching Browser #" + workingIndex);
@@ -90,7 +87,7 @@ namespace DiscordQR
                 dataGridView1.Invoke((Action)delegate
                 {
                     dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail, "", "", d.Status);
-                    dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Yellow;
+                    dataGridView1.Rows[dataGridView1.RowCount - 1].Cells[6].Style.BackColor = Color.Yellow;
                 });
 
                 currentIndex += 1;
@@ -137,6 +134,7 @@ namespace DiscordQR
                 {
                     update();
                 });
+                driver.Quit();
             }
             catch (Exception ex) { MessageBox.Show(ex.Message, "Error"); }
         }
@@ -159,16 +157,17 @@ namespace DiscordQR
             foreach (Discord d in dict.Values)
             {
                 dataGridView1.Rows.Add(d.QrCodeId, d.DiscordToken, d.DiscordUsername, d.DiscordEmail, "", "", d.Status);
+                int rowscount = dataGridView1.RowCount - 1;
                 switch (d.Status)
                 {
                     case "Expired":
-                        dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Red;
+                        dataGridView1.Rows[dataGridView1.RowCount - 1].Cells[6].Style.BackColor = Color.Red;
                         break;
                     case "Available":
-                        dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Yellow;
+                        dataGridView1.Rows[dataGridView1.RowCount - 1].Cells[6].Style.BackColor = Color.Yellow;
                         break;
                     case "Used":
-                        dataGridView1.CurrentRow.Cells[6].Style.BackColor = Color.Green;
+                        dataGridView1.Rows[dataGridView1.RowCount - 1].Cells[6].Style.BackColor = Color.Green;
                         break;
 
                 }
