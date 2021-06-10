@@ -98,7 +98,7 @@ namespace DiscordQR
                 });
 
                 log("Waiting for login on QR #" + workingIndex);
-                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(140));
+                wait = new WebDriverWait(driver, TimeSpan.FromSeconds(240));
                 wait.Until(webDriver => webDriver.Url != "https://discord.com/login");
 
                 string token = ((IJavaScriptExecutor)driver).ExecuteScript(File.ReadAllText("files/token.js")).ToString();
