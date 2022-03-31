@@ -48,12 +48,12 @@ namespace DiscordQR
                 driver.Navigate().GoToUrl("https://discord.com/login");
                 
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-                wait.Until(webDriver => webDriver.FindElement(By.ClassName("qrCode-wG6ZgU")));
+                wait.Until(webDriver => webDriver.FindElement(By.ClassName("qrCode-2R7t9S")));
 
-                IWebElement firstResult = driver.FindElement(By.ClassName("qrCode-wG6ZgU"));
+                IWebElement firstResult = driver.FindElement(By.ClassName("qrCode-2R7t9S"));
 
                 Thread.Sleep(3000);
-                firstResult = driver.FindElement(By.CssSelector(".qrCode-wG6ZgU > img:nth-child(2)"));
+                firstResult = driver.FindElement(By.CssSelector(".qrCode-2R7t9S > img:nth-child(2)"));
                 log("Waiting for webpage...");
                 //Generating QR
                 string QRbase64 = firstResult.GetAttribute("src");
