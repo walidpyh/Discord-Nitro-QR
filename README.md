@@ -5,6 +5,9 @@ Discord QR Scam Image Code Generator &amp; Token + Account Details Grab
 A tool that automatically Generates a fake Nitro gift QR image to scan . Grabs the Discord Token - Username - Email Address. 
 This tool demonstrates how people can trick others into scanning their Discord login QR Code, and gain access to their account..
 
+Make sure to have Mozilla Firefox installed for this to work properly!
+
+
 ![img1](https://i.imgur.com/GPjzml1.png)
 
 ## Demonstration
