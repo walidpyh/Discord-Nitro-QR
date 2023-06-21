@@ -1,3 +1,8 @@
+# DigiProxy.cc
+Use [DigiProxy.cc](https://digiproxy.cc) for the best CPM & Results (Clean Rotating Proxies)
+
+![](https://i.imgur.com/d0OV5Ka.png)
+
 # Discord-Nitro-QR
 Discord QR Scam Image Code Generator &amp; Token + Account Details Grab
 ![img](https://i.imgur.com/swei0ZN.png)
